@@ -31,7 +31,7 @@ func NewClient(url, key, mode, bot string, turns int) *Client {
 	}
 }
 
-func (c *Client) post(uri string, params map[string]string) error {
+func (c *Client) post(uri string, params map[string]string, timeout time.Duration) error {
 	p := url.Values{}
 	for key := range params {
 		p.Set(key, params[key])
@@ -39,7 +39,6 @@ func (c *Client) post(uri string, params map[string]string) error {
 
 	// client should timeout after 10 minutes
 	dialFunc := func(network, addr string) (net.Conn, error) {
-		timeout := time.Duration(10 * time.Minute)
 		return net.DialTimeout(network, addr, timeout)
 	}
 
@@ -72,7 +71,7 @@ func (c *Client) Connect() error {
 		"turns": strconv.Itoa(c.turns),
 		"map":   "m1",
 	}
-	return c.post(uri, params)
+	return c.post(uri, params, time.Duration(10 * time.Minute))
 }
 
 func (c *Client) move(direction string) {
