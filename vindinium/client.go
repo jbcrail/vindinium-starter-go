@@ -104,7 +104,7 @@ func (c *Client) Play() {
 	}
 	i := 0
 	for {
-    direction := bot.Move(c.state)
+		direction := bot.Move(c.state)
 		if err := c.move(direction); err != nil {
 			break
 		}
