@@ -93,7 +93,6 @@ func (c *Client) isFinished() bool {
 
 func (c *Client) Play() {
 	fmt.Println("Playing at " + c.state.ViewURL)
-	var direction string
 	var bot Bot
 	switch c.bot {
 	case "fighter":
@@ -105,7 +104,7 @@ func (c *Client) Play() {
 	}
 	i := 0
 	for {
-		direction = bot.Move(c.state)
+    direction := bot.Move(c.state)
 		if err := c.move(direction); err != nil {
 			break
 		}
