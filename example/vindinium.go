@@ -19,7 +19,7 @@ func main() {
 	hostname := flag.String("server", "http://vindinium.org", "Hostname of game server")
 	mode := flag.String("mode", "training", "Game mode")
 	turns := flag.Int("turns", 300, "Turns per game")
-	bot := flag.String("bot", "none", "Bot")
+	bot := flag.String("bot", "random", "Bot")
 
 	flag.Parse()
 
@@ -32,4 +32,5 @@ func main() {
 	if err := c.Connect(); err != nil {
 		log.Fatal(err)
 	}
+	c.Play()
 }

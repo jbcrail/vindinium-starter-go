@@ -3,6 +3,7 @@ package vindinium
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -37,7 +38,6 @@ func (c *Client) post(uri string, params map[string]string, timeout time.Duratio
 		p.Set(key, params[key])
 	}
 
-	// client should timeout after 10 minutes
 	dialFunc := func(network, addr string) (net.Conn, error) {
 		return net.DialTimeout(network, addr, timeout)
 	}
@@ -71,10 +71,16 @@ func (c *Client) Connect() error {
 		"turns": strconv.Itoa(c.turns),
 		"map":   "m1",
 	}
-	return c.post(uri, params, time.Duration(10 * time.Minute))
+	// client should timeout after 10 minutes
+	return c.post(uri, params, time.Duration(10*time.Minute))
 }
 
-func (c *Client) move(direction string) {
+func (c *Client) move(direction string) error {
+	params := map[string]string{
+		"key": c.key,
+		"dir": direction,
+	}
+	return c.post(c.state.PlayURL, params, time.Duration(15*time.Second))
 }
 
 func (c *Client) isFinished() bool {
@@ -82,6 +88,22 @@ func (c *Client) isFinished() bool {
 }
 
 func (c *Client) Play() {
-	for !c.isFinished() {
+	var direction string
+	var bot Bot
+	switch c.bot {
+	case "fighter":
+		bot = FighterBot{}
+	case "slow":
+		bot = SlowBot{}
+	default:
+		bot = RandomBot{}
 	}
+	for !c.isFinished() {
+		fmt.Print(".")
+		direction = bot.Move(c.state)
+		if err := c.move(direction); err != nil {
+			break
+		}
+	}
+	fmt.Println()
 }
