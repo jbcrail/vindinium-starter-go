@@ -65,6 +65,10 @@ func (c *Client) post(uri string, params map[string]string, timeout time.Duratio
 }
 
 func (c *Client) Connect() error {
+	fmt.Println("Connecting to " + c.url)
+	if c.mode == "arena" {
+		fmt.Println("Waiting for other players to join...")
+	}
 	uri := c.url + "/api/" + c.mode
 	params := map[string]string{
 		"key":   c.key,
@@ -88,6 +92,7 @@ func (c *Client) isFinished() bool {
 }
 
 func (c *Client) Play() {
+	fmt.Println("Playing at " + c.state.ViewURL)
 	var direction string
 	var bot Bot
 	switch c.bot {
@@ -98,12 +103,17 @@ func (c *Client) Play() {
 	default:
 		bot = RandomBot{}
 	}
-	for !c.isFinished() {
-		fmt.Print(".")
+	i := 0
+	for {
 		direction = bot.Move(c.state)
 		if err := c.move(direction); err != nil {
 			break
 		}
+		if c.isFinished() {
+			break
+		}
+		i++
+		fmt.Print("\rTaking turn " + strconv.Itoa(i))
 	}
-	fmt.Println()
+	fmt.Println("\rFinished " + strconv.Itoa(i) + " turn(s)")
 }
